@@ -34,13 +34,12 @@ defmodule EventStore.Export do
     [%EventStore.RecordedEvent{stream_uuid: stream_uuid} | _] = events
 
     filename = Path.join(output_path, "#{stream_uuid}.csv")
-    file = File.open!(filename, [:write, :utf8])
+    file = File.open!(filename, [:append, :utf8])
 
     events
-    |> Stream.map(&to_row/1)
+    |> Enum.map(&to_row/1)
     |> CSV.encode()
-    |> Stream.each(&IO.write(file, &1))
-    |> Stream.run()
+    |> Enum.each(&IO.write(file, &1))
 
     File.close(file)
   end

@@ -24,8 +24,8 @@ defmodule EventStore.Export do
     |> Stream.each(fn batch ->
       :ok = write_event_info(output_path, batch)
 
-      unless opts[:no_events] do
-        :ok = write_events(output_path, serializer, batch)
+      unless opts[:no_data] && opts[:no_metadata] do
+        :ok = write_events(output_path, serializer, batch, opts)
       end
     end)
     |> Stream.run()
@@ -47,7 +47,7 @@ defmodule EventStore.Export do
     File.close(file)
   end
 
-  defp write_events(output_path, serializer, events) do
+  defp write_events(output_path, serializer, events, opts) do
     [%EventStore.RecordedEvent{stream_uuid: stream_uuid} | _] = events
 
     output_stream_path = Path.join(output_path, stream_uuid)
@@ -57,8 +57,13 @@ defmodule EventStore.Export do
     for event <- events do
       %EventStore.RecordedEvent{event_id: event_id, data: data, metadata: metadata} = event
 
-      :ok = serialize_to_file(output_stream_path, "#{event_id}.data", serializer, data)
-      :ok = serialize_to_file(output_stream_path, "#{event_id}.metadata", serializer, metadata)
+      unless opts[:no_data] do
+        :ok = serialize_to_file(output_stream_path, "#{event_id}.data", serializer, data)
+      end
+
+      unless opts[:no_metadata] do
+        :ok = serialize_to_file(output_stream_path, "#{event_id}.metadata", serializer, metadata)
+      end
     end
 
     :ok

@@ -8,7 +8,8 @@ defmodule Mix.Tasks.EventStore.Export do
 
   ## Command line options
 
-    * `--no-events` - do not output events
+    * `--no-data` - do not output serialized event data
+    * `--no-metadata` - do not output serialized event metadata
     * `--quiet` - do not log output
 
   """
@@ -23,7 +24,11 @@ defmodule Mix.Tasks.EventStore.Export do
   end
 
   def run(args) do
-    {opts, [output_path], _} = OptionParser.parse(args, switches: [quiet: :boolean, no_events: :boolean])
+    {opts, [output_path], _} =
+      OptionParser.parse(
+        args,
+        switches: [quiet: :boolean, no_data: :boolean, no_metadata: :boolean]
+      )
 
     {:ok, _} = Application.ensure_all_started(:eventstore)
 

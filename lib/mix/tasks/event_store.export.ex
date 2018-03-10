@@ -8,6 +8,7 @@ defmodule Mix.Tasks.EventStore.Export do
 
   ## Command line options
 
+    * `--no-events` - do not output events
     * `--quiet` - do not log output
 
   """
@@ -22,11 +23,11 @@ defmodule Mix.Tasks.EventStore.Export do
   end
 
   def run(args) do
-    {opts, [output_path], _} = OptionParser.parse(args, switches: [quiet: :boolean])
+    {opts, [output_path], _} = OptionParser.parse(args, switches: [quiet: :boolean, no_events: :boolean])
 
     {:ok, _} = Application.ensure_all_started(:eventstore)
 
-    case EventStore.Export.output(output_path) do
+    case EventStore.Export.output(output_path, opts) do
       :ok ->
         unless opts[:quiet] do
           Mix.shell().info("The EventStore database has been exported to: #{output_path}")

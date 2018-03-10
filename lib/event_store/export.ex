@@ -14,7 +14,7 @@ defmodule EventStore.Export do
       :ok
 
   """
-  def output(output_path) do
+  def output(output_path, opts \\ []) do
     File.mkdir_p!(output_path)
 
     serializer = Application.get_env(:eventstore, EventStore.Storage)[:serializer]
@@ -23,7 +23,10 @@ defmodule EventStore.Export do
     |> Stream.chunk_by(fn %EventStore.RecordedEvent{stream_uuid: stream_uuid} -> stream_uuid end)
     |> Stream.each(fn batch ->
       :ok = write_event_info(output_path, batch)
-      :ok = write_events(output_path, serializer, batch)
+
+      unless opts[:no_events] do
+        :ok = write_events(output_path, serializer, batch)
+      end
     end)
     |> Stream.run()
 

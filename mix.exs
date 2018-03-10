@@ -22,7 +22,7 @@ defmodule EventStore.Export.MixProject do
   defp deps do
     [
       {:csv, "~> 2.1"},
-      {:eventstore, "~> 0.13"}
+      {:eventstore, "~> 0.13", runtime: false, optional: true}
     ]
   end
 
